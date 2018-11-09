@@ -19,8 +19,21 @@ export default class DOMModel {
         this.props.classList = this.element.classList;
     }
 
-    getDataAttribute(name) {
-        this.props[name] = this.element.dataset[name];
+    getDataAttribute(ele) {
+        return (typeof ele === 'string')
+            ? this.props[ele] = this.element.dataset[ele]
+            : ele.reduce((acc, curr) => {
+                    return (acc[curr] = this.dataset[curr], acc);
+                }, this.props);
+
+        // if (typeof ele === 'string') {
+        //     this.props[ele] = this.element.dataset[ele];
+        // } else {
+        //     ele.reduce((acc, curr) => {
+        //         acc[attr] = this.dataset[curr]
+        //         return acc
+        //     }, this.props);
+        // }
     }
 
     getAttribute(name, propName) {
@@ -49,13 +62,12 @@ export default class DOMModel {
     }
 
     getChildDOMModelArray(name, model) {
-        this.props[name] = [];
-        for (let i = 0; i < this.nodes.length; ++i) {
-            const nodeName = this.nodes[i].nodeName.toLowerCase();
-            if (nodeName === name) {
-                this.props[name].push(new model(this.nodes[i]));
-            }
-        }
+        this.props[name] = this.nodes.reduce((acc, node) => {
+            const nodeName = node.nodeName.toLowerCase();
+            return nodeName === name
+                ? acc.concat(new model(node))
+                : acc;
+        }), []); // use empty array as acc;
     }
 
     getChildNodes() {
@@ -63,12 +75,8 @@ export default class DOMModel {
     }
 
     getChildNode(name) {
-        for (let i = 0; i < this.nodes.length; ++i) {
-            const nodeName = this.nodes[i].nodeName.toLowerCase();
-            if (nodeName === name) {
-                return this.nodes[i];
-            }
-        }
-        return null;
+        return [...this.nodes].find(({ nodeName }) => {
+            return nodeName.toLowerCase() === name;
+        });
     }
 }
