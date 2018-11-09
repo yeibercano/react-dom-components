@@ -6,17 +6,37 @@
  */
 export default class DOMRegistry {
     constructor(element) {
-        this.element = this.getParentNode(element);
-    }
-
-    getParentNode(element) {
-        return element || document;
+        this.element = element || document;
     }
 
     register(components) {
         this.components = components;
-        this.getNodeNames();
+        this.nodeNames = this.getNodeNames();
         this.init(this.element);
+    }
+
+    /**
+     * Initialize the supplied element to find
+     * child components and render them.
+     */
+     init(parentElement) {
+         // Loop through all registred DOM Components
+         this.components.forEach((component) => {
+             this.renderAll(parentElement, component);
+         });
+     }
+
+    renderAll(parentElement, { nodeName } = {}) {
+        // Find all potential nodes of the components
+        const componentNodes = parentElement.querySelectorAll(nodeName);
+
+        // Loop through each node and determine if we can render it.
+        componentNodes.forEach((componentNode) => {
+            const canRender = this.traverseUpDom(componentNode);
+            if (canRender) {
+                component.render(componentNode);
+            }
+        });
     }
 
     /**
@@ -35,49 +55,23 @@ export default class DOMRegistry {
     }
 
     /**
-     * Initialize the supplied element to find
-     * child components and render them.
-     */
-    init(parentElement) {
-        // Loop through all registred DOM Components
-        const compArray = Object.keys(this.components);
-        compArray.forEach((name) => {
-            this.renderAll(parentElement, this.components[name]);
-        });
-    }
-
-    renderAll(parentElement, component) {
-        // Find all potential nodes of the components
-        const componentNodes = parentElement.querySelectorAll(component.nodeName);
-
-        // Loop through each node and determine if we can render it.
-        Array.prototype.forEach.call(componentNodes, function(componentNode) {
-            const canRender = this.traverseUpDom(componentNode);
-            if (canRender) {
-                component.render(componentNode);
-            }
-        }.bind(this));
-    }
-
-    /**
      * Traverse up the DOM from the supplied node to see if any parents
      * are React DOM Components.
      * @return {boolean} canRender Whether the component can render with React.
      */
-    traverseUpDom(node) {
-        const { parentNode } = node;
+    traverseUpDom({ parentNode } = {}) {
         // If the DOM has already been swapped out by React, the parent node will be null.
-        if (parentNode !== null) {
-            const parentNodeName = parentNode.nodeName.toLowerCase();
-            if (this.nodeNames.includes(parentNodeName)) {
-                return false;
-            } else if (parentNodeName === 'body') {
-                return true;
-            }
-            this.traverseUpDom(parentNode);
+        if (!parentNode) return false;
+
+        const parentNodeName = parentNode.nodeName.toLowerCase();
+        // base case
+        if (this.nodeNames.includes(parentNodeName)) {
+            return false;
+        } else if (parentNodeName === 'body') {
             return true;
         }
-        return false;
+        // recurse until exausting the tree
+        return this.traverseUpDom(parentNode);
     }
 
     /**
@@ -85,10 +79,6 @@ export default class DOMRegistry {
      * @return {array} nodeNames
      */
     getNodeNames() {
-        this.nodeNames = [];
-        const compArray = Object.keys(this.components);
-        compArray.forEach((name) => {
-            this.nodeNames.push(this.components[name].nodeName);
-        });
+        return this.components.map(({ nodeName } = {}) => nodeName);
     }
 }
