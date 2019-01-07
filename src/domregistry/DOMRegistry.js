@@ -36,22 +36,22 @@ export default class DOMRegistry {
      */
     init(parentElement) {
         // Loop through all registred DOM Components
-        this.components.forEach((name) => {
-            this.renderAll(parentElement, this.components[name]);
+        this.components.forEach((component) => {
+            this.renderAll(parentElement, component);
         });
-    }
+     }
 
-    renderAll(parentElement, component) {
+    renderAll(parentElement, { nodeName } = {}) {
         // Find all potential nodes of the components
-        const componentNodes = parentElement.querySelectorAll(component.nodeName);
+        const componentNodes = parentElement.querySelectorAll(nodeName);
 
         // Loop through each node and determine if we can render it.
-        Array.prototype.forEach.call(componentNodes, function(componentNode) {
+        componentNodes.forEach((componentNode) => {
             const canRender = this.traverseUpDom(componentNode);
             if (canRender) {
                 component.render(componentNode);
             }
-        }.bind(this));
+        });
     }
 
     /**
