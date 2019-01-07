@@ -24,6 +24,10 @@ export default class DOMModel {
         this.props[name] = this.element.dataset[name];
     }
 
+    assignAllDataAttributesToProps() {
+        Object.assign(this.props, this.element.dataset);
+    }
+    
     getAttribute(name, propName) {
         if (!propName) {
             propName = name;
