@@ -10,8 +10,8 @@ export default class DOMRegistry {
     }
 
     register(components) {
-        this.components = components;
-        this.getNodeNames();
+        this.components = Object.keys(components);
+        this.nodeNames = this.getNodeNames();
         this.init(this.element);
     }
 
@@ -36,8 +36,7 @@ export default class DOMRegistry {
      */
     init(parentElement) {
         // Loop through all registred DOM Components
-        const compArray = Object.keys(this.components);
-        compArray.forEach((name) => {
+        this.components.forEach((name) => {
             this.renderAll(parentElement, this.components[name]);
         });
     }
@@ -81,10 +80,6 @@ export default class DOMRegistry {
      * @return {array} nodeNames
      */
     getNodeNames() {
-        this.nodeNames = [];
-        const compArray = Object.keys(this.components);
-        compArray.forEach((name) => {
-            this.nodeNames.push(this.components[name].nodeName);
-        });
+        return this.components.map(({ nodeName } = {}) => nodeName);
     }
 }
