@@ -6,11 +6,7 @@
  */
 export default class DOMRegistry {
     constructor(element) {
-        this.element = this.getParentNode(element);
-    }
-
-    getParentNode(element) {
-        return element || document;
+        this.element = element || document;
     }
 
     register(components) {
