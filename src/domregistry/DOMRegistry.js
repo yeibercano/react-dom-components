@@ -59,20 +59,21 @@ export default class DOMRegistry {
      * are React DOM Components.
      * @return {boolean} canRender Whether the component can render with React.
      */
-    traverseUpDom(node) {
-        const { parentNode } = node;
+     traverseUpDom({ parentNode } = {}) {
         // If the DOM has already been swapped out by React, the parent node will be null.
-        if (parentNode !== null) {
-            const parentNodeName = parentNode.nodeName.toLowerCase();
-            if (this.nodeNames.includes(parentNodeName)) {
-                return false;
-            } else if (parentNodeName === 'body') {
-                return true;
-            }
-            this.traverseUpDom(parentNode);
+        if (parentNode === null) return false;
+
+        const parentNodeName = parentNode.nodeName.toLowerCase();
+        
+        if (this.nodeNames.includes(parentNodeName)) {
+            return false;
+        }
+        
+        if (parentNodeName === 'body') {
             return true;
         }
-        return false;
+        // recurse until exausting the tree
+        return this.traverseUpDom(parentNode);
     }
 
     /**
