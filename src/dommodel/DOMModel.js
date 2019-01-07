@@ -5,6 +5,7 @@
 export default class DOMModel {
     constructor(element) {
         this.props = {};
+        this.props.element = element;
         this.element = element;
         this.getId();
         this.getClassList();
