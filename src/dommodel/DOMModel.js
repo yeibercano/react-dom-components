@@ -33,7 +33,7 @@ export default class DOMModel {
 
     getTextContent() {
         const textNode = this.getChildNode('#text');
-        if (textNode !== null) {
+        if (textNode !== undefined) {
             this.props['text'] = textNode.textContent;
         } else {
             this.props['text'] = null;
@@ -42,7 +42,7 @@ export default class DOMModel {
 
     getChildDOMModel(name, model) {
         const childElement = this.getChildNode(name);
-        if (childElement !== null) {
+        if (childElement !== undefined) {
             this.props[name] = new model(childElement);
         } else {
             this.props[name] = null;
@@ -64,12 +64,8 @@ export default class DOMModel {
     }
 
     getChildNode(name) {
-        for (let i = 0; i < this.nodes.length; ++i) {
-            const nodeName = this.nodes[i].nodeName.toLowerCase();
-            if (nodeName === name) {
-                return this.nodes[i];
-            }
-        }
-        return null;
+        return [...this.nodes].find(({ nodeName }) => {
+            return nodeName.toLowerCase() === name;
+        });
     }
 }
