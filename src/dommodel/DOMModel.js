@@ -50,21 +50,20 @@ export default class DOMModel {
     }
 
     getChildDOMModelArray(name, model) {
-        this.props[name] = [];
-        for (let i = 0; i < this.nodes.length; ++i) {
-            const nodeName = this.nodes[i].nodeName.toLowerCase();
-            if (nodeName === name) {
-                this.props[name].push(new model(this.nodes[i]));
-            }
-        }
+       this.props[name] = this.getChildNodes().reduce((acc, node) => {
+           const nodeName = node.nodeName.toLowerCase();
+           return nodeName === name
+               ? acc.concat(new model(node))
+               : acc;
+       }, []); // use empty array as acc;
     }
 
     getChildNodes() {
-        this.nodes = this.element.childNodes;
+        return [...this.element.childNodes];
     }
 
     getChildNode(name) {
-        return [...this.nodes].find(({ nodeName }) => {
+        return this.getChildNodes().find(({ nodeName }) => {
             return nodeName.toLowerCase() === name;
         });
     }
